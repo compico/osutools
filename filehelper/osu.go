@@ -36,30 +36,6 @@ func (osufolder *OsuFolder) initSkinsPath() {
 	osufolder.SkinsPath = filepath.Join(osufolder.GamePath, "Skins")
 }
 
-//For windows only
-func (osufolder *OsuFolder) InitGamePathByReg() error {
-	k, err := registry.OpenKey(registry.CLASSES_ROOT, `osu\DefaultIcon`, registry.QUERY_VALUE)
-	if err != nil {
-		return fmt.Errorf("cannot open registry key: %w", err)
-	}
-	defer k.Close()
-
-	path, _, err := k.GetStringValue("")
-	if err != nil {
-		return fmt.Errorf("cannot read registry key value: %w", err)
-	}
-	path = path[1:]
-	path = filepath.Dir(path)
-
-	osufolder.GamePath = path
-
-	err = osufolder.getAllPaths()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func (osufolder *OsuFolder) ReadOsudbFile() error {
 	osufolder.DataBase = new(osu.OsuDB)
 	osufolder.DataBase.Beatmaps = make([]osu.Beatmap, 0)
