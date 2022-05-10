@@ -7,8 +7,6 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"golang.org/x/sys/windows/registry"
-
 	"github.com/compico/osutools/encoding/database"
 	"github.com/compico/osutools/osu"
 )
