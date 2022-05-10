@@ -1,10 +1,16 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
+)
+
+var (
+	ErrNotOsuFile = errors.New("input file extention is not '.osu'")
+	ErrNoFiles    = errors.New("no files")
 )
 
 func test(s []string) {
@@ -15,26 +21,29 @@ func test(s []string) {
 
 func osufiletest(l []string) error {
 	for i := 0; i < len(l); i++ {
-		if filepath.Ext(l[i]) != ".osu" {
-			err := fmt.Errorf(" %s in %v not .osu file", l[i], i)
-			return err
+		if filepath.Ext(l[i]) == ".osu" {
+			continue
 		}
+
+		return fmt.Errorf("%w: %s", ErrNotOsuFile, l[i])
 	}
+
 	return nil
 }
 
 func notexisterror(f []string, format string) error {
-	if len(f) > 0 {
-		fmt.Println("[ERROR] In folder(s):")
-		for _, l := range f {
-			fmt.Println("►", l)
-		}
-		fmt.Printf("...no have %s file. ", format)
-		fmt.Println("But you can ignore it.")
-	} else {
-		err := fmt.Errorf("No files")
-		return err
+	if len(f) == 0 {
+		return ErrNoFiles
 	}
+
+	fmt.Println("[ERROR] In folder(s):")
+
+	for _, l := range f {
+		fmt.Println("►", l)
+	}
+
+	fmt.Printf("...no have %s file. But you can ignore it.\n", format)
+
 	return nil
 }
 
@@ -47,7 +56,7 @@ func parsefile(f string) (r []string) {
 func lsDir(songsPath string) ([]string, error) {
 	songFolders, err := ioutil.ReadDir(songsPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot read %s directory: %w", songsPath, err)
 	}
 	var strList []string
 	for i := 0; i < len(songFolders); i++ {

@@ -3,19 +3,21 @@ package filehelper
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 
+	"golang.org/x/sys/windows/registry"
+
 	"github.com/compico/osutools/encoding/database"
 	"github.com/compico/osutools/osu"
-	"golang.org/x/sys/windows/registry"
 )
 
-var unknownpath = errors.New("Unknown game path.")
+var ErrUnknownPath = errors.New("unknown game path")
 
 func (osufolder *OsuFolder) GetAllPaths() error {
 	if osufolder.GamePath == "" {
-		return unknownpath
+		return ErrUnknownPath
 	}
 	osufolder.initSongsPath()
 	osufolder.initSkinsPath()
@@ -38,13 +40,13 @@ func (osufolder *OsuFolder) initSkinsPath() {
 func (osufolder *OsuFolder) InitGamePathByReg() error {
 	k, err := registry.OpenKey(registry.CLASSES_ROOT, `osu\DefaultIcon`, registry.QUERY_VALUE)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot open registry key: %w", err)
 	}
 	defer k.Close()
 
 	path, _, err := k.GetStringValue("")
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot read registry key value: %w", err)
 	}
 	path = path[1:]
 	path = filepath.Dir(path)
@@ -58,7 +60,7 @@ func (osufolder *OsuFolder) ReadOsudbFile() error {
 	osufolder.DataBase.Beatmaps = make([]osu.Beatmap, 0)
 	err := database.Unmarshal(osufolder.GamePath+"/osu!.db", osufolder.DataBase)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot decode osu database file: %w", err)
 	}
 	return nil
 }
@@ -67,11 +69,11 @@ func (osufolder *OsuFolder) JsonToDatabase(file string) error {
 	osufolder.DataBase = new(osu.OsuDB)
 	b, err := ioutil.ReadFile(file)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot read JSON file: %w", err)
 	}
-	err = json.Unmarshal(b, osufolder.DataBase)
-	if err != nil {
-		return err
+
+	if err = json.Unmarshal(b, osufolder.DataBase); err != nil {
+		return fmt.Errorf("cannot decode JSON input to osu database: %w", err)
 	}
 	return err
 }

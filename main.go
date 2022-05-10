@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/compico/osutools/filehelper"
 )
@@ -9,17 +9,17 @@ import (
 func main() {
 	var fh filehelper.OsuFolder
 	if err := fh.InitGamePathByReg(); err != nil {
-		fmt.Println(err)
-		return
+		log.Fatalln(err)
 	}
+
 	if err := fh.GetAllPaths(); err != nil {
-		fmt.Println(err)
-		return
+		log.Fatalln(err)
 	}
-	err := fh.ReadOsudbFile()
-	if err != nil {
-		panic(err)
+
+	if err := fh.ReadOsudbFile(); err != nil {
+		log.Fatalln(err)
 	}
+
 	// f, err := os.Create("./osu!.db.json")
 	// if err != nil {
 	// 	panic(err)

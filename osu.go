@@ -50,24 +50,26 @@ func readosufile(ls string) (osu osuFileType, err error) {
 	return osu, nil
 }
 func extractmp3(songsPath string) {
-	fmt.Println("Finding beatmaps in folder \"Songs\".")
+	fmt.Println(`Finding beatmaps in folder "Songs".`)
+
 	songsFolders, err := lsDir(songsPath) //'%path_to_osu%/Songs/songsFolders[i]'
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("..done")
-	fmt.Println("Finding \".osu\" file in folders.")
+	fmt.Println(`Finding ".osu" file in folders.`)
+
 	osuFiles, err := osuFileList(songsFolders) //%songspath%/%map%/file.osu
 	if err != nil {
 		fmt.Println("error:", err)
 	}
 	fmt.Println("..done")
-	err = osufiletest(osuFiles)
-	if err != nil {
+
+	if err = osufiletest(osuFiles); err != nil {
 		panic(err)
 	}
 
-	fmt.Println("Parse \".osu\" files.")
+	fmt.Println(`Parse ".osu" files.`)
 	osuFile := map[int]osuFileType{}
 	var notexistfile []string
 	for i := 0; i < len(osuFiles); i++ {
@@ -84,13 +86,12 @@ func extractmp3(songsPath string) {
 		//fmt.Printf("Artist: %s\nTitle: %s\nPath: %s\nAudioPath: %s\n\n", osuFile[i].artist, osuFile[i].title, osuFile[i].path, osuFile[i].audiopath)
 	}
 	if len(notexistfile) > 0 {
-		err := notexisterror(notexistfile, ".mp3")
-		if err != nil {
+		if err := notexisterror(notexistfile, ".mp3"); err != nil {
 			fmt.Println(err)
 		}
 	}
 	fmt.Println("..done")
-	fmt.Println("Copy \".mp3\" files.")
+	fmt.Println(`Copy ".mp3" files.`)
 
 	switch {
 	case os.Args[3] == "2":
@@ -117,65 +118,62 @@ func extractmp3(songsPath string) {
 }
 func copyFileOne(osufile osuFileType) error {
 	if _, err := os.Stat(osufile.audiopath); os.IsNotExist(err) {
-		return err
+		return fmt.Errorf("cannot check path to audio: %w", err)
 	}
 	filename := filepath.Join(osufile.title + ".mp3")
 	path := os.Args[2]
 	if _, err := os.Stat(filepath.Dir(path)); os.IsNotExist(err) {
-		err = os.MkdirAll(filepath.Dir(path), os.ModePerm)
-		if err != nil {
-			return err
+		if err = os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
+			return fmt.Errorf("cannot create directory: %w", err)
 		}
 	}
 	path = os.Args[2] + "\\" + osufile.artist + " - " + filename
 	path = strings.Trim(path, "\n\t\r")
 	if _, err := os.Stat(filepath.Dir(path)); os.IsNotExist(err) {
 		if err != nil {
-			return err
+			return fmt.Errorf("cannot check path to audio: %w", err)
 		}
-		err = os.MkdirAll(filepath.Dir(path), os.ModePerm)
-		if err != nil {
-			return err
+
+		if err = os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
+			return fmt.Errorf("cannot create directory: %w", err)
 		}
 	}
 	mp3, err := ioutil.ReadFile(osufile.audiopath)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot read audio file contents: %w", err)
 	}
-	err = ioutil.WriteFile(path, mp3, 0777)
-	if err != nil {
-		return err
+
+	if err = ioutil.WriteFile(path, mp3, 0o777); err != nil {
+		return fmt.Errorf("cannot write audio to file: %w", err)
 	}
 	return nil
 }
 
 func copyFileTwo(osufile osuFileType) error {
 	if _, err := os.Stat(osufile.audiopath); os.IsNotExist(err) {
-		return err
+		return fmt.Errorf("cannot check path to audio: %w", err)
 	}
 	filename := filepath.Join(osufile.title + ".mp3")
 	path := os.Args[2]
 	if _, err := os.Stat(filepath.Dir(path)); os.IsNotExist(err) {
-		err = os.MkdirAll(filepath.Dir(path), os.ModePerm)
-		if err != nil {
-			return err
+		if err = os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
+			return fmt.Errorf("cannot create directory: %w", err)
 		}
 	}
 	path = os.Args[2] + osufile.artist + "\\" + filename
 	path = strings.Trim(path, "\n\t\r")
 	if _, err := os.Stat(filepath.Dir(path)); os.IsNotExist(err) {
-		err = os.MkdirAll(filepath.Dir(path), os.ModePerm)
-		if err != nil {
-			return err
+		if err = os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
+			return fmt.Errorf("cannot create directory: %w", err)
 		}
 	}
 	mp3, err := ioutil.ReadFile(osufile.audiopath)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot read audio file contents: %w", err)
 	}
-	err = ioutil.WriteFile(path, mp3, 0777)
-	if err != nil {
-		return err
+
+	if err = ioutil.WriteFile(path, mp3, 0o777); err != nil {
+		return fmt.Errorf("cannot write audio to file: %w", err)
 	}
 	return nil
 }
@@ -184,8 +182,7 @@ func copyFileTwo(osufile osuFileType) error {
 func osuFileList(sp []string) ([]string, error) {
 	var (
 		listFile, osufilepath, emptyFolders []string
-
-		err error
+		err                                 error
 	)
 	for i := 0; i < len(sp); i++ {
 		listFile, err = lsDir(sp[i]) //'%path_to_song%/listfile[i]'
@@ -205,8 +202,7 @@ func osuFileList(sp []string) ([]string, error) {
 
 	}
 	if len(emptyFolders) > 0 {
-		err = notexisterror(emptyFolders, ".osu")
-		if err != nil {
+		if err = notexisterror(emptyFolders, ".osu"); err != nil {
 			fmt.Println(err)
 		}
 	}
@@ -215,9 +211,11 @@ func osuFileList(sp []string) ([]string, error) {
 
 func filePosition(lf []string) int {
 	for i := 0; i < len(lf); i++ {
-		if filepath.Ext(lf[i]) == ".osu" {
-			return i
+		if filepath.Ext(lf[i]) != ".osu" {
+			continue
 		}
+
+		return i
 	}
 	return -1
 }

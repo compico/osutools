@@ -19,9 +19,9 @@ func BenchmarkUnmarshal(b *testing.B) {
 		b.StopTimer()
 		fh.DataBase = nil
 		b.StartTimer()
-		err := fh.ReadOsudbFile()
-		if err != nil {
-			b.Log(err.Error())
+
+		if err := fh.ReadOsudbFile(); err != nil {
+			b.Error(err.Error())
 		}
 	}
 }
