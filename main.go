@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/compico/osutools/filehelper"
 )
@@ -10,8 +10,7 @@ var fh filehelper.OsuFolder
 
 func main() {
 	if err := fh.InitGamePathByReg(); err != nil {
-		fmt.Println(err)
-		return
+		log.Fatalln(err)
 	}
 	err := fh.ReadOsudbFile()
 	if err != nil {

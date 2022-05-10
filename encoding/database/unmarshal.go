@@ -3,6 +3,7 @@ package database
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"io/ioutil"
 	"math"
 
@@ -19,7 +20,7 @@ func Unmarshal(filepath string, database *osu.OsuDB) (err error) {
 	scanner = 0
 	target, err = ioutil.ReadFile(filepath)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot read file: %w", err)
 	}
 	database.Version = decodeInt()
 	database.FolderCount = decodeInt()
@@ -135,7 +136,6 @@ func decodeString() string {
 	switch target[scanner] {
 	case 0x00:
 		scanner++
-		return ""
 	case 0x0b:
 		scanner++
 		sizebytes := uleb128.UnmarshalReader(bytes.NewReader([]byte{target[scanner]}))

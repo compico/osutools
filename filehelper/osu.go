@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
+	"golang.org/x/sys/windows/registry"
+
 	"github.com/compico/osutools/encoding/database"
 	"github.com/compico/osutools/osu"
 )
@@ -39,7 +41,7 @@ func (osufolder *OsuFolder) ReadOsudbFile() error {
 	osufolder.DataBase.Beatmaps = make([]osu.Beatmap, 0)
 	err := database.Unmarshal(osufolder.GamePath+"/osu!.db", osufolder.DataBase)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot decode osu database file: %w", err)
 	}
 	return nil
 }
@@ -48,8 +50,9 @@ func (osufolder *OsuFolder) JsonToDatabase(file string) error {
 	osufolder.DataBase = new(osu.OsuDB)
 	b, err := ioutil.ReadFile(file)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot read JSON file: %w", err)
 	}
+
 	if err = json.Unmarshal(b, osufolder.DataBase); err != nil {
 		return fmt.Errorf("cannot decode JSON input to osu database: %w", err)
 	}
