@@ -3,6 +3,7 @@ package filehelper
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 
@@ -10,11 +11,11 @@ import (
 	"github.com/compico/osutools/osu"
 )
 
-var unknownpath = errors.New("Unknown game path.")
+var ErrUnknownPath = errors.New("Unknown game path.")
 
 func (osufolder *OsuFolder) getAllPaths() error {
 	if osufolder.GamePath == "" {
-		return unknownpath
+		return ErrUnknownPath
 	}
 	osufolder.initSongsPath()
 	osufolder.initSkinsPath()
@@ -49,9 +50,8 @@ func (osufolder *OsuFolder) JsonToDatabase(file string) error {
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal(b, osufolder.DataBase)
-	if err != nil {
-		return err
+	if err = json.Unmarshal(b, osufolder.DataBase); err != nil {
+		return fmt.Errorf("cannot decode JSON input to osu database: %w", err)
 	}
 	return err
 }
