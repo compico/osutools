@@ -1,0 +1,7 @@
+{{ define "app" }}
+{{ template "head" }}
+<div id="app" hx-get="/doms/interface" hx-select="#app" hx-trigger="load" hx-swap="outerHTML">
+
+</div>
+{{ template "app" }}
+{{ end }}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/compico/osutools/filehelper"
@@ -18,8 +19,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	r := httprouter.New()
 	server := webserver.NewServer(":8000", r)
+
+	r.GET("/", appHandler)
+	r.GET("/doms/interface", domInterfaceHandler)
+
+	fmt.Println("Webserver starting on http://localhost:8000/")
 	if err := server.S.ListenAndServe(); err != nil {
 		log.Fatalln(err)
 	}
