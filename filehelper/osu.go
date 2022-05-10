@@ -13,7 +13,7 @@ import (
 	"github.com/compico/osutools/osu"
 )
 
-var ErrUnknownPath = errors.New("unknown game path")
+var ErrUnknownPath = errors.New("Unknown game path.")
 
 func (osufolder *OsuFolder) getAllPaths() error {
 	if osufolder.GamePath == "" {
