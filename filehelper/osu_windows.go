@@ -19,10 +19,14 @@ func (osufolder *OsuFolder) InitGamePathByReg() error {
 	if err != nil {
 		return err
 	}
-
 	path = path[1:]
 	path = filepath.Dir(path)
+
 	osufolder.GamePath = path
 
+	err = osufolder.getAllPaths()
+	if err != nil {
+		return err
+	}
 	return nil
 }
