@@ -134,8 +134,6 @@ func decodeBoolean() bool {
 
 func decodeString() string {
 	switch target[scanner] {
-	case 0x00:
-		scanner++
 	case 0x0b:
 		scanner++
 		sizebytes := uleb128.UnmarshalReader(bytes.NewReader([]byte{target[scanner]}))
@@ -148,6 +146,7 @@ func decodeString() string {
 		scanner += sizebytes
 		return x
 	}
+	scanner++
 	return ""
 }
 

@@ -15,7 +15,8 @@ func appHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	if err != nil {
 		fmt.Fprintf(w, "Error \"ParseFiles\": %v\n", err.Error())
 	}
-	if err := t.ExecuteTemplate(w, "app", nil); err != nil {
+	err = t.ExecuteTemplate(w, "app", nil)
+	if err != nil {
 		fmt.Fprintf(w, "Error \"ExecuteTemplate\": %v\n", err.Error())
 	}
 }

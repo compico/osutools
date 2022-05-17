@@ -1,7 +1,10 @@
 {{ define "app" }}
 {{ template "head" }}
-<div id="app" hx-get="/doms/interface" hx-select="#app" hx-trigger="load" hx-swap="outerHTML">
-
+<div id="app" hx-get="/doms/interface" hx-trigger="load" hx-swap="outerHTML">
+    <img width="150" style="  display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;" src="/static/images/svg/bars.svg" />
 </div>
-{{ template "app" }}
+{{ template "footer" }}
 {{ end }}

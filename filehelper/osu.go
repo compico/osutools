@@ -13,19 +13,6 @@ import (
 
 var ErrUnknownPath = errors.New("Unknown game path.")
 
-func (osufolder *OsuFolder) getAllPaths() error {
-	if osufolder.GamePath == "" {
-		return ErrUnknownPath
-	}
-	osufolder.initSongsPath()
-	osufolder.initSkinsPath()
-	return nil
-}
-
-func (osufolder *OsuFolder) SetGamePath(gamepath string) {
-	osufolder.GamePath = gamepath
-}
-
 func (osufolder *OsuFolder) initSongsPath() {
 	osufolder.SongsPath = filepath.Join(osufolder.GamePath, "Songs")
 }
@@ -41,6 +28,7 @@ func (osufolder *OsuFolder) ReadOsudbFile() error {
 	if err != nil {
 		return fmt.Errorf("cannot decode osu database file: %w", err)
 	}
+	osufolder.hashing()
 	return nil
 }
 
@@ -55,4 +43,15 @@ func (osufolder *OsuFolder) JsonToDatabase(file string) error {
 		return fmt.Errorf("cannot decode JSON input to osu database: %w", err)
 	}
 	return err
+}
+
+func (osufolder *OsuFolder) hashing() {
+	osufolder.SongsHash = make(map[int32]map[int32]int)
+	for i := 0; i < len(osufolder.DataBase.Beatmaps); i++ {
+		if len(osufolder.SongsHash[osufolder.DataBase.Beatmaps[i].BeatmapID]) == 0 {
+			osufolder.SongsHash[osufolder.DataBase.Beatmaps[i].BeatmapID] = make(map[int32]int)
+		}
+		osufolder.SongsHash[osufolder.DataBase.Beatmaps[i].BeatmapID][osufolder.DataBase.Beatmaps[i].DifficultyID] = i
+	}
+	osufolder.DirectorySorting()
 }

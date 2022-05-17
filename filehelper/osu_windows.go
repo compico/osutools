@@ -25,9 +25,8 @@ func (osufolder *OsuFolder) InitGamePathByReg() error {
 
 	osufolder.GamePath = path
 
-	err = osufolder.getAllPaths()
-	if err != nil {
-		return err
-	}
+	osufolder.initSongsPath()
+	osufolder.initSkinsPath()
+
 	return nil
 }
